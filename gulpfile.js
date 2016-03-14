@@ -2,15 +2,13 @@
 
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
-    sass = require('gulp-sass'),
-    autoprefixer = require('gulp-autoprefixer'),
     webserver = require('gulp-webserver');
 
 gulp.task('default', ['moveIndex', 'moveImages', 'moveJavascript', 'webserver', 'watch']);
 
 gulp.task('moveIndex', function () {
   gulp.src('./src/index.html')
-  .pipe(gulp.dest('./dist/index.html'));
+  .pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('moveImages', function () {
