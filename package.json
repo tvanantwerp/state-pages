@@ -1,0 +1,11 @@
+{
+  "name": "state-pages",
+  "version": "1.0.0",
+  "description": "Scripts for generating state tax data views.",
+  "author": "Tom VanAntwerp",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-util": "^3.0.7",
+    "gulp-webserver": "^0.9.1"
+  }
+}
