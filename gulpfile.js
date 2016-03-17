@@ -4,16 +4,16 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     webserver = require('gulp-webserver');
 
-gulp.task('default', ['moveIndex', 'moveImages', 'moveJavascript', 'webserver', 'watch']);
+gulp.task('default', ['moveIndex', 'moveData', 'moveJavascript', 'webserver', 'watch']);
 
 gulp.task('moveIndex', function () {
   gulp.src('./src/index.html')
   .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('moveImages', function () {
-  gulp.src('./src/images/**/*')
-  .pipe(gulp.dest('./dist/images/'));
+gulp.task('moveData', function () {
+  gulp.src('./src/data/**/*')
+  .pipe(gulp.dest('./dist/data/'));
 });
 
 gulp.task('moveJavascript', function () {
@@ -32,6 +32,6 @@ gulp.task('webserver', function () {
 
 gulp.task('watch', function () {
   gulp.watch('./src/index.html', ['moveIndex']);
-  gulp.watch('./src/images/**/*', ['moveImages']);
+  gulp.watch('./src/data/**/*', ['moveData']);
   gulp.watch('./src/js/**/*', ['moveJavascript']);
 });
