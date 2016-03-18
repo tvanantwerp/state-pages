@@ -54,17 +54,24 @@
         .attr('transform', 'translate(' + chart.margin + ', ' + chart.margin + ')');
 
       chart.keys.forEach(function(key) {
-        var data = [];
+        // State with origin
+        var data = [{x: 0, y: 0}];
+        // Keeps track of the last rate value, used to prevent slopes
         var previousData;
         chart.summaryData.map(function(d) { 
           if (previousData >= 0) {
+            //extend line to next income bump, prevents slopes
             data.push({x: +d.income, y: previousData})
           }
-
+          // raise line to new rate
           data.push({x: +d.income, y: +d[key]}); 
           previousData = +d[key];
         });
+        // Extend line to right edge
         data.push({x: chart.xMax, y: d3.max(chart.summaryData, function(d) { return +d[key]; })});
+        // Complete the path
+        data.push({x: chart.xMax, y: 0});
+        data.push({x: 0, y: 0});
         chart.drawLine(chartSvg, data);
       });
 
@@ -86,9 +93,7 @@
 
         selection.append('path')
           .datum(bracketData)
-          .attr('fill', 'none')
-          .attr('stroke', '#000000')
-          .attr('stroke-width', 1)
+          .attr('fill', 'rgba(0,0,0,0.1)')
           .attr('d', theLine);
     }
   }
