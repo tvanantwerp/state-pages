@@ -48,34 +48,40 @@
     },
 
     drawChart: function() {
+      // Create the SVG selection
       var chartSvg = d3.select('.state-rate-chart').append('svg')
         .attr('height', chart.height + 2 * chart.margin)
         .attr('width', chart.width + 2 * chart.margin)
         .append('g')
         .attr('transform', 'translate(' + chart.margin + ', ' + chart.margin + ')');
 
+      // Draw summary paths
       chart.keys.forEach(function(key) {
-        // State with origin
-        var data = [{x: 0, y: 0}];
-        // Keeps track of the last rate value, used to prevent slopes
-        var previousData;
-        chart.summaryData.map(function(d) { 
-          if (previousData >= 0) {
-            //extend line to next income bump, prevents slopes
-            data.push({x: +d.income, y: previousData})
-          }
-          // raise line to new rate
-          data.push({x: +d.income, y: +d[key]}); 
-          previousData = +d[key];
-        });
-        // Extend line to right edge
-        data.push({x: chart.xMax, y: d3.max(chart.summaryData, function(d) { return +d[key]; })});
-        // Complete the path
-        data.push({x: chart.xMax, y: 0});
-        data.push({x: 0, y: 0});
-        chart.drawLine(chartSvg, data);
+        var data;
+        var start = [{x: 0, y: 0}]; // start at origin
+        var end = [ // points that wrap around back to origin
+          {x: chart.xMax, y: d3.max(chart.summaryData, function(d) { return +d[key]; })},
+          {x: chart.xMax, y: 0},
+          {x: 0, y: 0}
+        ];
+        // Generate data for line steps
+        var steps = chart.generateData(chart.summaryData, key);
+        data = start.concat(steps, end); // Complete the path points
+
+        chart.drawPath(chartSvg, data)
+          .attr('fill', 'rgba(0,0,0,0.1)');
       });
 
+      // Draw this one state's brackets
+      var bracket = chart.generateData(chart.bracketsData, 'rate');
+      bracket.push({x: chart.xMax, y: d3.max(chart.bracketsData, function(d) { return +d.rate; })});
+
+      chart.drawPath(chartSvg, bracket)
+        .attr('fill', 'none')
+        .attr('stroke', '#ff0000')
+        .attr('stroke-width', 1);
+
+      // Draw axes
       chartSvg.append('g')
         .attr('class', 'x axis')
         .attr('transform', 'translate(0, ' + chart.height + ')')
@@ -88,15 +94,30 @@
       
     },
 
-    drawLine: function(selection, bracketData) {
+    drawPath: function(selection, bracketData) {
       var theLine = d3.svg.line()
         .x(function(d) { return chart.x(d.x); })
         .y(function(d) { return chart.y(d.y); });
 
-        selection.append('path')
+        return selection.append('path')
           .datum(bracketData)
-          .attr('fill', 'rgba(0,0,0,0.1)')
           .attr('d', theLine);
+    },
+
+    generateData: function(data, key) {
+      var returnedData = [];
+      var previousDatum;
+      data.map(function(d) { 
+        if (previousDatum >= 0) {
+          //extend line to next income bump, prevents slopes
+          returnedData.push({x: +d.income, y: previousDatum});
+        }
+        // raise line to new rate
+        returnedData.push({x: +d.income, y: +d[key]}); 
+        previousDatum = +d[key];
+      });
+
+      return returnedData;
     }
   }
 }());
