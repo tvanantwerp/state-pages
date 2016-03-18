@@ -23,41 +23,58 @@
       this.bracketsData = brackets;
       this.keys = ['min', 'firstQuartile', 'median', 'thirdQuartile', 'max'];
 
-      this.height = 500;
-      this.width = 500;
+      this.margin = 30;
+      this.height = 500 - 2 * this.margin;
+      this.width = 500 - 2 * this.margin;
       this.x = d3.scale.pow()
-        .rangeRound([0, this.width])
-        .domain(d3.extent(this.summaryData, function(d) { return +d.income; }));
+        .exponent(0.3)
+        .rangeRound([this.margin, this.width])
+        .domain([0, 1.2 * d3.max(this.summaryData, function(d) { return +d.income; })]);
       this.y = d3.scale.linear()
-        .rangeRound([this.height, 0])
+        .rangeRound([this.height, this.margin])
         .domain(
           [d3.min(this.summaryData, function(d) { return +d.min; }),
            d3.max(this.summaryData, function(d) { return +d.max; })]);
-      this.xAxis = d3.svg.axis().scale(this.x).orient('bottom');
+      this.xAxis = d3.svg.axis()
+        .scale(this.x)
+        .orient('bottom')
+        .tickValues([0, 10000, 50000, 200000, 500000, 1000000])
+        .tickSize(6, 0);
       this.yAxis = d3.svg.axis().scale(this.y).orient('left');
 
       this.drawChart();
     },
 
     drawChart: function() {
-      var chartSvg = d3.select('.state-rate-chart').append('svg');
-      chartSvg
-        .attr('height', chart.height)
-        .attr('width', chart.width);
+      var chartSvg = d3.select('.state-rate-chart').append('svg')
+        .attr('height', chart.height + 2 * chart.margin)
+        .attr('width', chart.width + 2 * chart.margin)
+        .append('g')
+        .attr('transform', 'translate(' + chart.margin + ', ' + chart.margin + ')');
 
       chart.keys.forEach(function(key) {
-        var data = chart.summaryData.map(function(d) { return {x: d.income, y: d[key]}; });
+        var data = chart.summaryData.map(function(d) { 
+          return {x: +d.income, y: +d[key]}; 
+        });
         chart.drawLine(chartSvg, data);
-      })
+      });
 
+      chartSvg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0, ' + chart.height + ')')
+        .call(chart.xAxis);
+
+      chartSvg.append('g')
+        .attr('class', 'y axis')
+        .call(chart.yAxis);
       
     },
 
     drawLine: function(selection, bracketData) {
       var theLine = d3.svg.line()
-        .x(function(d) { return chart.x(+d.x); })
-        .y(function(d) { return chart.y(+d.y); });
-console.log(chart.x(50000));
+        .x(function(d) { return chart.x(d.x); })
+        .y(function(d) { return chart.y(d.y); });
+
         selection.append('path')
           .datum(bracketData)
           .attr('fill', 'none')
