@@ -26,10 +26,11 @@
       this.margin = 30;
       this.height = 500 - 2 * this.margin;
       this.width = 500 - 2 * this.margin;
+      this.xMax = 1.2 * d3.max(this.summaryData, function(d) { return +d.income; });
       this.x = d3.scale.pow()
         .exponent(0.3)
         .rangeRound([this.margin, this.width])
-        .domain([0, 1.2 * d3.max(this.summaryData, function(d) { return +d.income; })]);
+        .domain([0, this.xMax]);
       this.y = d3.scale.linear()
         .rangeRound([this.height, this.margin])
         .domain(
@@ -53,9 +54,17 @@
         .attr('transform', 'translate(' + chart.margin + ', ' + chart.margin + ')');
 
       chart.keys.forEach(function(key) {
-        var data = chart.summaryData.map(function(d) { 
-          return {x: +d.income, y: +d[key]}; 
+        var data = [];
+        var previousData;
+        chart.summaryData.map(function(d) { 
+          if (previousData >= 0) {
+            data.push({x: +d.income, y: previousData})
+          }
+
+          data.push({x: +d.income, y: +d[key]}); 
+          previousData = +d[key];
         });
+        data.push({x: chart.xMax, y: d3.max(chart.summaryData, function(d) { return +d[key]; })});
         chart.drawLine(chartSvg, data);
       });
 
