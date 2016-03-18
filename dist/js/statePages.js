@@ -40,7 +40,8 @@
         .scale(this.x)
         .orient('bottom')
         .tickValues([0, 10000, 50000, 200000, 500000, 1000000])
-        .tickSize(6, 0);
+        .tickSize(6, 0)
+        .tickFormat(d3.format('$'));
       this.yAxis = d3.svg.axis().scale(this.y).orient('left');
 
       this.drawChart();
@@ -82,6 +83,7 @@
 
       chartSvg.append('g')
         .attr('class', 'y axis')
+        .attr('transform', 'translate(' +chart.margin + ', 0)')
         .call(chart.yAxis);
       
     },
