@@ -39,10 +39,12 @@
       this.xAxis = d3.svg.axis()
         .scale(this.x)
         .orient('bottom')
-        .tickValues([0, 10000, 50000, 200000, 500000, 1000000])
-        .tickSize(6, 0)
-        .tickFormat(d3.format('$'));
-      this.yAxis = d3.svg.axis().scale(this.y).orient('left');
+        .tickValues([0, 5000, 50000, 200000, 500000, 1000000])
+        .tickSize(10, 1)
+        .tickFormat(d3.format('$,'));
+      this.yAxis = d3.svg.axis().scale(this.y).orient('left')
+        .tickSize(5, 1)
+        .tickFormat(d3.format('%'));
 
       this.drawChart();
     },
